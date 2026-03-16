@@ -1,0 +1,2992 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planificación Virtual Docente</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1a1a2e;
+        --paper: #f5f0e8;
+        --cream: #ede8db;
+        --accent: #c84b31;
+        --gold: #d4a843;
+        --muted: #7a7265;
+        --border: #cfc8b8;
+        --white: #fdfbf7;
+        --success: #2d6a4f;
+        --admin: #1a3a5c;
+        --admin-light: #e8f0f8;
+        --shadow: 0 4px 24px rgba(26, 26, 46, 0.1);
+        --shadow-lg: 0 8px 48px rgba(26, 26, 46, 0.18);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        min-height: 100vh;
+        background-image:
+          radial-gradient(
+            ellipse at 20% 10%,
+            rgba(212, 168, 67, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 90%,
+            rgba(200, 75, 49, 0.06) 0%,
+            transparent 50%
+          );
+      }
+
+      /* ─── HEADER ─── */
+      header {
+        background: var(--ink);
+        color: var(--paper);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+      }
+      header.admin-mode {
+        background: var(--admin);
+      }
+      .logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .logo-dot {
+        width: 10px;
+        height: 10px;
+        background: var(--gold);
+        border-radius: 50%;
+      }
+      .header-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--cream);
+        flex-wrap: wrap;
+      }
+      .admin-badge {
+        background: var(--gold);
+        color: var(--ink);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .btn-header {
+        background: transparent;
+        border: 1px solid rgba(245, 240, 232, 0.3);
+        color: var(--paper);
+        padding: 0.4rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-family: "DM Sans", sans-serif;
+        transition: all 0.2s;
+      }
+      .btn-header:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      /* ─── PAGES ─── */
+      .page {
+        display: none;
+        animation: fadeIn 0.35s ease;
+      }
+      .page.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ─── AUTH PAGE ─── */
+      .auth-wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .auth-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 3rem 2.5rem;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+      }
+      .auth-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--gold));
+      }
+      .auth-title {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+        line-height: 1.1;
+      }
+      .auth-subtitle {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+      .auth-tabs {
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1.8rem;
+      }
+      .auth-tab {
+        flex: 1;
+        padding: 0.65rem;
+        text-align: center;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        background: var(--cream);
+        border: none;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .auth-tab.active {
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      /* ─── FORM ELEMENTS ─── */
+      .form-group {
+        margin-bottom: 1.2rem;
+      }
+      label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      input[type="email"],
+      input[type="password"],
+      input[type="text"],
+      input[type="search"],
+      textarea,
+      select {
+        width: 100%;
+        background: var(--paper);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        padding: 0.7rem 0.9rem;
+        font-size: 0.9rem;
+        font-family: "DM Sans", sans-serif;
+        color: var(--ink);
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        outline: none;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(200, 75, 49, 0.1);
+      }
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.6;
+      }
+
+      .btn-primary {
+        width: 100%;
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        border-radius: 6px;
+        padding: 0.85rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        letter-spacing: 0.03em;
+        margin-top: 0.5rem;
+      }
+      .btn-primary:hover {
+        background: #2d2d4a;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+      }
+
+      .error-msg {
+        background: #fdecea;
+        border: 1px solid #f5c6c0;
+        color: #c0392b;
+        border-radius: 6px;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        display: none;
+      }
+      .success-msg {
+        background: #e8f5e9;
+        border: 1px solid #a5d6a7;
+        color: var(--success);
+        border-radius: 6px;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        display: none;
+      }
+
+      /* ─── DASHBOARD ─── */
+      .dash-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem;
+      }
+      .dash-hero {
+        margin-bottom: 2.5rem;
+      }
+      .dash-hero h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--ink);
+        margin-bottom: 0.4rem;
+      }
+      .dash-hero p {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .dash-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+      }
+      .btn-action {
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+      }
+      .btn-action:hover {
+        background: #2d2d4a;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+      .btn-action.secondary {
+        background: var(--white);
+        color: var(--ink);
+        border: 1.5px solid var(--border);
+      }
+      .btn-action.secondary:hover {
+        background: var(--cream);
+      }
+      .btn-action.admin-btn {
+        background: var(--admin);
+      }
+      .btn-action.admin-btn:hover {
+        background: #0f2a42;
+      }
+      .btn-action.gold-btn {
+        background: var(--gold);
+        color: var(--ink);
+      }
+      .btn-action.gold-btn:hover {
+        background: #c09a38;
+      }
+
+      /* ─── PLANIF GRID ─── */
+      .section-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .count-badge {
+        background: var(--accent);
+        color: white;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.15rem 0.55rem;
+        border-radius: 20px;
+      }
+      .planif-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.25rem;
+      }
+      .planif-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.4rem;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .planif-card::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, var(--accent), var(--gold));
+      }
+      .planif-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+      }
+      .planif-card-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--ink);
+        margin-bottom: 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 0.3rem;
+      }
+      .planif-card-meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        padding-left: 0.3rem;
+        margin-bottom: 0.5rem;
+      }
+      .planif-card-preview {
+        font-size: 0.82rem;
+        color: var(--muted);
+        padding-left: 0.3rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .planif-card-attachments {
+        display: flex;
+        gap: 0.4rem;
+        padding-left: 0.3rem;
+        margin-top: 0.6rem;
+        flex-wrap: wrap;
+      }
+      .attach-chip {
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+      .planif-card-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-left: 0.3rem;
+        flex-wrap: wrap;
+      }
+      .btn-sm {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        background: var(--cream);
+        color: var(--ink);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+      .btn-sm:hover {
+        background: var(--border);
+      }
+      .btn-sm.danger {
+        border-color: #f5c6c0;
+        background: #fdecea;
+        color: var(--accent);
+      }
+      .btn-sm.danger:hover {
+        background: #fad0cc;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--muted);
+      }
+      .empty-state svg {
+        opacity: 0.3;
+        margin-bottom: 1rem;
+      }
+      .empty-state p {
+        font-size: 0.95rem;
+      }
+
+      /* ─── FORM PAGE ─── */
+      .form-wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem;
+      }
+      .form-header {
+        margin-bottom: 2rem;
+      }
+      .form-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.9rem;
+        font-weight: 900;
+      }
+      .form-header p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+      }
+      .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow);
+      }
+      .form-card-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 1.4rem;
+        padding-bottom: 0.7rem;
+        border-bottom: 1.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .section-num {
+        background: var(--ink);
+        color: var(--paper);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      @media (max-width: 600px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .planif-grid {
+          grid-template-columns: 1fr;
+        }
+        .auth-card {
+          padding: 2rem 1.5rem;
+        }
+        .header-user {
+          gap: 0.4rem;
+        }
+      }
+      .char-count {
+        text-align: right;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+      .char-count.warn {
+        color: var(--accent);
+      }
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+      .btn-save {
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.85rem 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-save:hover {
+        background: #b5402a;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(200, 75, 49, 0.3);
+      }
+      .btn-cancel {
+        background: var(--white);
+        color: var(--ink);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        padding: 0.85rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-cancel:hover {
+        background: var(--cream);
+      }
+
+      /* ─── FILE ATTACHMENTS ─── */
+      .file-upload-area {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--paper);
+      }
+      .file-upload-area:hover,
+      .file-upload-area.drag-over {
+        border-color: var(--accent);
+        background: rgba(200, 75, 49, 0.04);
+      }
+      .file-upload-area p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin-top: 0.5rem;
+      }
+      .file-upload-icon {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+      }
+      .attached-files {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .attached-file-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.6rem 0.9rem;
+      }
+      .attached-file-name {
+        flex: 1;
+        font-size: 0.85rem;
+        color: var(--ink);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .attached-file-size {
+        font-size: 0.75rem;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .btn-remove-file {
+        background: none;
+        border: none;
+        color: var(--accent);
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0 0.25rem;
+        line-height: 1;
+      }
+      .btn-download-file {
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        border-radius: 4px;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.72rem;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        white-space: nowrap;
+      }
+      .btn-download-file:hover {
+        background: #2d2d4a;
+      }
+
+      /* ─── TOAST ─── */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 0.9rem 1.4rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        box-shadow: var(--shadow-lg);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .toast.success {
+        background: var(--success);
+      }
+      .toast.error {
+        background: var(--accent);
+      }
+
+      /* ─── DETAIL VIEW ─── */
+      .detail-section {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.2rem;
+        box-shadow: var(--shadow);
+      }
+      .detail-section h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .detail-field {
+        margin-bottom: 0.9rem;
+      }
+      .detail-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+      }
+      .detail-value {
+        font-size: 0.9rem;
+        color: var(--ink);
+        line-height: 1.6;
+        background: var(--paper);
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border);
+        white-space: pre-wrap;
+      }
+      .detail-value.empty {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ─── ADMIN PANEL ─── */
+      .admin-wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem;
+      }
+      .admin-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+      .admin-title {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--admin);
+        flex: 1;
+      }
+      .admin-search-panel {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+      }
+      .admin-search-panel h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--admin);
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .search-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+      .search-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.2rem;
+        flex-wrap: wrap;
+      }
+      .btn-search {
+        background: var(--admin);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .btn-search:hover {
+        background: #0f2a42;
+      }
+      .btn-clear-search {
+        background: var(--cream);
+        color: var(--ink);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        padding: 0.75rem 1.2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-clear-search:hover {
+        background: var(--border);
+      }
+      .admin-results-info {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .admin-table-wrap {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .admin-table th {
+        background: var(--admin);
+        color: white;
+        text-align: left;
+        padding: 0.85rem 1rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+      }
+      .admin-table th:hover {
+        background: #0f2a42;
+      }
+      .admin-table th .sort-icon {
+        margin-left: 0.3rem;
+        opacity: 0.6;
+      }
+      .admin-table td {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.86rem;
+        vertical-align: middle;
+      }
+      .admin-table tr:last-child td {
+        border-bottom: none;
+      }
+      .admin-table tr:hover td {
+        background: var(--admin-light);
+      }
+      .admin-table .td-main {
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .admin-table .td-sub {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .highlight {
+        background: rgba(212, 168, 67, 0.35);
+        border-radius: 2px;
+        padding: 0 2px;
+      }
+      .btn-view-sm {
+        background: var(--admin);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        white-space: nowrap;
+      }
+      .btn-view-sm:hover {
+        background: #0f2a42;
+      }
+
+      /* ─── ADMIN USER MANAGEMENT ─── */
+      .admin-tabs {
+        display: flex;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+      }
+      .admin-tab {
+        flex: 1;
+        padding: 0.65rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        background: var(--cream);
+        border: none;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .admin-tab.active {
+        background: var(--admin);
+        color: white;
+      }
+      .admin-sub-section {
+        display: none;
+      }
+      .admin-sub-section.active {
+        display: block;
+      }
+
+      .user-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: var(--shadow);
+      }
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--admin);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .user-info {
+        flex: 1;
+      }
+      .user-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .user-stats {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 0.15rem;
+      }
+      .user-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .role-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .role-admin {
+        background: rgba(26, 58, 92, 0.15);
+        color: var(--admin);
+      }
+      .role-docente {
+        background: var(--cream);
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .btn-toggle-admin {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 500;
+      }
+      .btn-make-admin {
+        background: var(--admin);
+        color: white;
+      }
+      .btn-make-admin:hover {
+        background: #0f2a42;
+      }
+      .btn-remove-admin {
+        background: #fdecea;
+        color: var(--accent);
+        border: 1px solid #f5c6c0;
+      }
+      .btn-remove-admin:hover {
+        background: #fad0cc;
+      }
+      .btn-delete-user {
+        background: #fdecea;
+        color: var(--accent);
+        border: 1px solid #f5c6c0;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+      }
+      .btn-delete-user:hover {
+        background: #fad0cc;
+      }
+
+      /* ─── EXPORT MODAL ─── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 26, 46, 0.6);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .modal-overlay.active {
+        display: flex;
+      }
+      .modal-box {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: var(--shadow-lg);
+        animation: fadeIn 0.2s ease;
+      }
+      .modal-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .modal-sub {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+      }
+      .modal-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+      .export-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1.5px solid var(--border);
+        cursor: pointer;
+        transition: all 0.15s;
+        background: var(--paper);
+      }
+      .export-option:hover {
+        border-color: var(--accent);
+        background: rgba(200, 75, 49, 0.04);
+      }
+      .export-option.selected {
+        border-color: var(--accent);
+        background: rgba(200, 75, 49, 0.08);
+      }
+      .export-icon {
+        font-size: 1.75rem;
+        flex-shrink: 0;
+      }
+      .export-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .export-desc {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.15rem;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+      }
+      .btn-modal-confirm {
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-modal-confirm:hover {
+        background: #b5402a;
+      }
+      .btn-modal-cancel {
+        background: var(--cream);
+        color: var(--ink);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        padding: 0.75rem 1.2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-modal-cancel:hover {
+        background: var(--border);
+      }
+
+      header {
+        display: none;
+      }
+      header.visible {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="appHeader">
+      <div class="logo">
+        <div class="logo-dot"></div>
+        Planificación Virtual
+      </div>
+      <div class="header-user">
+        <span id="headerEmail"></span>
+        <span id="headerAdminBadge" class="admin-badge" style="display: none"
+          >Admin</span
+        >
+        <button
+          class="btn-header"
+          id="btnAdminPanel"
+          onclick="showAdmin()"
+          style="display: none"
+        >
+          Panel Admin
+        </button>
+        <button class="btn-header" onclick="showExportModal()">
+          ⬇ Exportar
+        </button>
+        <button class="btn-header" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- ══════════ EXPORT MODAL ══════════ -->
+    <div id="exportModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-title">Exportar datos</div>
+        <div class="modal-sub">
+          Elegí el formato de exportación para usar offline
+        </div>
+        <div class="modal-options">
+          <div
+            class="export-option selected"
+            onclick="selectExport(this, 'json')"
+            data-format="json"
+          >
+            <div class="export-icon">📦</div>
+            <div>
+              <div class="export-label">Backup completo (JSON)</div>
+              <div class="export-desc">
+                Exporta todo: planificaciones, usuarios y adjuntos. Podés
+                importarlo después.
+              </div>
+            </div>
+          </div>
+          <div
+            class="export-option"
+            onclick="selectExport(this, 'html')"
+            data-format="html"
+          >
+            <div class="export-icon">🌐</div>
+            <div>
+              <div class="export-label">App completa offline (HTML)</div>
+              <div class="export-desc">
+                Descarga esta misma app con todos tus datos embebidos. Funciona
+                sin internet.
+              </div>
+            </div>
+          </div>
+          <div
+            class="export-option"
+            onclick="selectExport(this, 'txt')"
+            data-format="txt"
+          >
+            <div class="export-icon">📄</div>
+            <div>
+              <div class="export-label">Planificaciones en texto (TXT)</div>
+              <div class="export-desc">
+                Exporta tus planificaciones en formato texto legible.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" onclick="closeExportModal()">
+            Cancelar
+          </button>
+          <button class="btn-modal-confirm" onclick="doExport()">
+            ⬇ Descargar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ AUTH PAGE ══════════ -->
+    <div id="pageAuth" class="page active">
+      <div class="auth-wrap">
+        <div class="auth-card">
+          <div class="auth-title">Planificación<br />Virtual Docente</div>
+          <div class="auth-subtitle">
+            Sistema de gestión de planificaciones pedagógicas
+          </div>
+          <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">
+              Iniciar sesión
+            </button>
+            <button class="auth-tab" onclick="switchAuthTab('register')">
+              Registrarse
+            </button>
+          </div>
+          <div id="authError" class="error-msg"></div>
+          <div id="authSuccess" class="success-msg"></div>
+          <div id="loginForm">
+            <div class="form-group">
+              <label>Correo electrónico</label>
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="docente@escuela.edu.ar"
+              />
+            </div>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input
+                type="password"
+                id="loginPass"
+                placeholder="••••••••"
+                onkeydown="if (event.key === 'Enter') doLogin();"
+              />
+            </div>
+            <button class="btn-primary" onclick="doLogin()">Entrar →</button>
+          </div>
+          <div id="registerForm" style="display: none">
+            <div class="form-group">
+              <label>Nombre completo</label>
+              <input
+                type="text"
+                id="regName"
+                placeholder="Prof. María García"
+              />
+            </div>
+            <div class="form-group">
+              <label>Correo electrónico</label>
+              <input
+                type="email"
+                id="regEmail"
+                placeholder="docente@escuela.edu.ar"
+              />
+            </div>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input
+                type="password"
+                id="regPass"
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+            <div class="form-group">
+              <label>Confirmar contraseña</label>
+              <input
+                type="password"
+                id="regPass2"
+                placeholder="Repetir contraseña"
+                onkeydown="if (event.key === 'Enter') doRegister();"
+              />
+            </div>
+            <button class="btn-primary" onclick="doRegister()">
+              Crear cuenta →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ DASHBOARD PAGE ══════════ -->
+    <div id="pageDash" class="page">
+      <div class="dash-wrap">
+        <div class="dash-hero">
+          <h1 id="dashGreeting">Mis Planificaciones</h1>
+          <p>Gestión de planificaciones del modelo virtual docente</p>
+        </div>
+        <div class="dash-actions">
+          <button class="btn-action" onclick="showNewForm()">
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Nueva Planificación
+          </button>
+          <button class="btn-action gold-btn" onclick="showExportModal()">
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Exportar
+          </button>
+        </div>
+        <div class="section-title">
+          Mis planificaciones
+          <span class="count-badge" id="planifCount">0</span>
+        </div>
+        <div id="planifGrid" class="planif-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ FORM PAGE ══════════ -->
+    <div id="pageForm" class="page">
+      <div class="form-wrap">
+        <div class="form-header">
+          <h1 id="formTitle">Nueva Planificación</h1>
+          <p>
+            Completá los campos según la estructura del modelo de planificación
+            virtual
+          </p>
+        </div>
+
+        <!-- Datos generales -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">G</span>Datos Generales
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Materia / Espacio Curricular</label>
+              <input
+                type="text"
+                id="f_materia"
+                placeholder="Ej. Matemática, Taller de Programación"
+              />
+            </div>
+            <div class="form-group">
+              <label>Año / Curso</label>
+              <input
+                type="text"
+                id="f_curso"
+                placeholder="Ej. 3° año, 5° año Técnico"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ciclo Lectivo</label>
+              <input type="text" id="f_ciclo" placeholder="Ej. 2025" />
+            </div>
+            <div class="form-group">
+              <label>Institución</label>
+              <input
+                type="text"
+                id="f_institucion"
+                placeholder="Nombre de la escuela"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 1 -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">1</span>Fundamentación de la Propuesta
+          </div>
+          <div class="form-group">
+            <label>Enfoque Pedagógico y Capacidades</label>
+            <textarea
+              id="f_enfoque"
+              rows="3"
+              oninput="countChars('f_enfoque', 'cc_enfoque', 500)"
+              placeholder="Perspectiva socio-técnica y desarrollo de capacidades profesionales..."
+            ></textarea>
+            <div class="char-count" id="cc_enfoque">0 / 500 caracteres</div>
+          </div>
+          <div class="form-group">
+            <label>Identidad Técnica y Perfil Profesional</label>
+            <textarea
+              id="f_identidad"
+              rows="3"
+              oninput="countChars('f_identidad', 'cc_identidad', 500)"
+              placeholder="Aporte al Perfil de Egreso y vínculo con el mundo del trabajo..."
+            ></textarea>
+            <div class="char-count" id="cc_identidad">0 / 500 caracteres</div>
+          </div>
+          <div class="form-group">
+            <label>Ejes Transversales (ESI, EAI, Saberes Digitales)</label>
+            <textarea
+              id="f_ejes"
+              rows="3"
+              oninput="countChars('f_ejes', 'cc_ejes', 500)"
+              placeholder="Inclusión de ESI, Educación Ambiental (EAI) y Saberes Digitales..."
+            ></textarea>
+            <div class="char-count" id="cc_ejes">0 / 500 caracteres</div>
+          </div>
+        </div>
+
+        <!-- Sección 2 -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">2</span>Período de Inicio (Marzo – Abril)
+          </div>
+          <div class="form-group">
+            <label>Enfoque de Profundización</label>
+            <textarea
+              id="f_profundizacion"
+              rows="3"
+              placeholder="Propuesta para fortalecer saberes previos y articularlos con los nuevos desafíos..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Actividades de Inicio</label>
+            <textarea
+              id="f_actividades_inicio"
+              rows="3"
+              placeholder="Presentación, acuerdos pedagógicos y encuadre de trabajo..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Sección 3 -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">3</span>Organización por Cuatrimestres
+          </div>
+          <div class="form-group">
+            <label>Primer Cuatrimestre (Marzo – Julio)</label>
+            <textarea
+              id="f_cuatri1"
+              rows="4"
+              placeholder="Contenidos, actividades y criterios..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Valoración Preliminar – Mayo</label>
+            <textarea
+              id="f_valoracion1"
+              rows="3"
+              placeholder="Detallá los criterios de valoración del primer período..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Intensificación / Profundización – Julio</label>
+            <textarea
+              id="f_intensificacion1"
+              rows="3"
+              placeholder="Propuesta para el período de intensificación de julio..."
+            ></textarea>
+          </div>
+          <div
+            class="form-group"
+            style="
+              margin-top: 1.2rem;
+              padding-top: 1.2rem;
+              border-top: 1px dashed var(--border);
+            "
+          >
+            <label>Segundo Cuatrimestre (Agosto – Diciembre)</label>
+            <textarea
+              id="f_cuatri2"
+              rows="4"
+              placeholder="Contenidos, actividades y criterios..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Valoración Preliminar – Octubre</label>
+            <textarea
+              id="f_valoracion2"
+              rows="3"
+              placeholder="Detallá los criterios de valoración del segundo período..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Sección 4 -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">4</span>Proyectos Interdisciplinarios
+          </div>
+          <div class="form-group">
+            <label>Articulación de Saberes</label>
+            <textarea
+              id="f_articulacion"
+              rows="3"
+              placeholder="Propuestas de trabajo conjunto con otras materias o talleres..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Núcleos Problemáticos</label>
+            <textarea
+              id="f_nucleos"
+              rows="3"
+              placeholder="Indicar si el proyecto responde a un eje del área..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Producto Final / Impacto</label>
+            <textarea
+              id="f_producto"
+              rows="3"
+              placeholder="Descripción del cierre del proyecto (maqueta, prototipo, informe técnico, etc.)..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Palabras Clave (separadas por coma)</label>
+            <input
+              type="text"
+              id="f_keywords"
+              placeholder="Ej. sustentabilidad, programación, diseño, ESI"
+            />
+          </div>
+        </div>
+
+        <!-- Sección 5 -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">5</span>Materias Pendientes e
+            Intensificación
+          </div>
+          <div class="form-group">
+            <label>Modelos de Organización</label>
+            <textarea
+              id="f_pendientes"
+              rows="3"
+              placeholder="Estrategias para quienes adeudan la materia de años anteriores..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Propuesta Diciembre</label>
+            <textarea
+              id="f_diciembre"
+              rows="3"
+              placeholder="Intensificación de saberes del ciclo lectivo actual..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Propuesta Febrero/Marzo</label>
+            <textarea
+              id="f_febrero"
+              rows="3"
+              placeholder="Instancia final de intensificación..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Sección 6 -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="section-num">6</span>Continuidad Pedagógica
+          </div>
+          <div class="form-group">
+            <label>Planificación Anticipada (mínimo 5 clases)</label>
+            <textarea
+              id="f_continuidad"
+              rows="5"
+              placeholder="Secuencia de al menos 5 clases para ejecución autónoma..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Recursos y Materiales</label>
+            <textarea
+              id="f_recursos"
+              rows="3"
+              placeholder="Materiales de lectura y guías de actividades claras para el estudiante..."
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Adjuntos -->
+        <div class="form-card">
+          <div class="form-card-title">
+            <span
+              class="section-num"
+              style="background: var(--gold); color: var(--ink)"
+              >📎</span
+            >
+            Archivos Adjuntos
+          </div>
+          <div
+            class="file-upload-area"
+            id="dropZone"
+            onclick="document.getElementById('fileInput').click()"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event)"
+          >
+            <div class="file-upload-icon">📂</div>
+            <strong>Clic para adjuntar archivos</strong>
+            <p>
+              O arrastrá y soltá aquí · PDF, DOC, DOCX, XLS, XLSX, JPG, PNG
+              (máx. 5 MB por archivo)
+            </p>
+          </div>
+          <input
+            type="file"
+            id="fileInput"
+            style="display: none"
+            multiple
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt"
+            onchange="handleFileInput(event)"
+          />
+          <div class="attached-files" id="attachedFilesList"></div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="showDash()">Cancelar</button>
+          <button type="button" class="btn-save" onclick="savePlanif()">
+            💾 Guardar Planificación
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ DETAIL PAGE ══════════ -->
+    <div id="pageDetail" class="page">
+      <div class="form-wrap">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+          "
+        >
+          <button class="btn-cancel" style="width: auto" onclick="showDash()">
+            ← Volver
+          </button>
+          <h1
+            id="detailTitle"
+            style="
+              font-family: &quot;Playfair Display&quot;, serif;
+              font-size: 1.6rem;
+              font-weight: 900;
+              flex: 1;
+            "
+          ></h1>
+          <button class="btn-save" style="width: auto" onclick="editCurrent()">
+            ✏️ Editar
+          </button>
+        </div>
+        <div id="detailContent"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ ADMIN PAGE ══════════ -->
+    <div id="pageAdmin" class="page">
+      <div class="admin-wrap">
+        <div class="admin-header">
+          <div>
+            <div class="admin-title">Panel de Administración</div>
+            <div
+              style="color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem"
+            >
+              Gestión y búsqueda avanzada de planificaciones
+            </div>
+          </div>
+          <button class="btn-cancel" onclick="showDash()">
+            ← Volver al panel
+          </button>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="admin-tab active" onclick="switchAdminTab('search')">
+            🔍 Búsqueda avanzada
+          </button>
+          <button class="admin-tab" onclick="switchAdminTab('users')">
+            👥 Usuarios
+          </button>
+          <button class="admin-tab" onclick="switchAdminTab('stats')">
+            📊 Estadísticas
+          </button>
+        </div>
+
+        <!-- TAB: BÚSQUEDA AVANZADA -->
+        <div id="adminTabSearch" class="admin-sub-section active">
+          <div class="admin-search-panel">
+            <h3>🔍 Filtros de búsqueda</h3>
+            <div class="search-grid">
+              <div class="form-group" style="margin: 0">
+                <label>Búsqueda global</label>
+                <input
+                  type="search"
+                  id="sq_global"
+                  placeholder="Cualquier campo..."
+                />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Materia</label>
+                <input
+                  type="text"
+                  id="sq_materia"
+                  placeholder="Ej. Matemática"
+                />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Docente (email)</label>
+                <input
+                  type="text"
+                  id="sq_docente"
+                  placeholder="Ej. profe@escuela.edu.ar"
+                />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Institución</label>
+                <input
+                  type="text"
+                  id="sq_institucion"
+                  placeholder="Ej. ENET N°1"
+                />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Ciclo lectivo</label>
+                <input type="text" id="sq_ciclo" placeholder="Ej. 2025" />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Año / Curso</label>
+                <input type="text" id="sq_curso" placeholder="Ej. 3° año" />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Palabras clave</label>
+                <input
+                  type="text"
+                  id="sq_keywords"
+                  placeholder="Ej. ESI, programación"
+                />
+              </div>
+              <div class="form-group" style="margin: 0">
+                <label>Ordenar por</label>
+                <select id="sq_sort">
+                  <option value="createdAt_desc">Fecha (más reciente)</option>
+                  <option value="createdAt_asc">Fecha (más antigua)</option>
+                  <option value="materia_asc">Materia A–Z</option>
+                  <option value="materia_desc">Materia Z–A</option>
+                  <option value="institucion_asc">Institución A–Z</option>
+                  <option value="docente_asc">Docente A–Z</option>
+                </select>
+              </div>
+            </div>
+            <div class="search-actions">
+              <button class="btn-search" onclick="runAdminSearch()">
+                <svg
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                Buscar
+              </button>
+              <button class="btn-clear-search" onclick="clearAdminSearch()">
+                ✕ Limpiar filtros
+              </button>
+              <button
+                class="btn-action gold-btn"
+                style="padding: 0.65rem 1.2rem; font-size: 0.85rem"
+                onclick="exportAdminResults()"
+              >
+                ⬇ Exportar resultados
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-results-info">
+            <span id="adminResultsInfo"
+              >Mostrando todas las planificaciones</span
+            >
+          </div>
+
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th onclick="sortAdminTable('materia')">
+                    Materia <span class="sort-icon">↕</span>
+                  </th>
+                  <th onclick="sortAdminTable('curso')">
+                    Año/Curso <span class="sort-icon">↕</span>
+                  </th>
+                  <th onclick="sortAdminTable('institucion')">
+                    Institución <span class="sort-icon">↕</span>
+                  </th>
+                  <th onclick="sortAdminTable('ciclo')">
+                    Ciclo <span class="sort-icon">↕</span>
+                  </th>
+                  <th onclick="sortAdminTable('userEmail')">
+                    Docente <span class="sort-icon">↕</span>
+                  </th>
+                  <th onclick="sortAdminTable('createdAt')">
+                    Fecha <span class="sort-icon">↕</span>
+                  </th>
+                  <th>Adjuntos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="adminResultsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: USUARIOS -->
+        <div id="adminTabUsers" class="admin-sub-section">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1rem;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+            "
+          >
+            <div
+              style="font-size: 0.9rem; color: var(--muted)"
+              id="userCountInfo"
+            ></div>
+          </div>
+          <div id="usersList"></div>
+        </div>
+
+        <!-- TAB: ESTADÍSTICAS -->
+        <div id="adminTabStats" class="admin-sub-section">
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+              gap: 1.25rem;
+              margin-bottom: 2rem;
+            "
+            id="statsGrid"
+          ></div>
+          <div class="admin-table-wrap" id="statsTopSection"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ══════════ DATABASE ══════════
+      const DB = {
+        getUsers: () => JSON.parse(localStorage.getItem("pvd_users") || "{}"),
+        saveUsers: (u) => localStorage.setItem("pvd_users", JSON.stringify(u)),
+        getPlanifs: () =>
+          JSON.parse(localStorage.getItem("pvd_planifs") || "[]"),
+        savePlanifs: (p) =>
+          localStorage.setItem("pvd_planifs", JSON.stringify(p)),
+        getSession: () => localStorage.getItem("pvd_session"),
+        setSession: (e) => localStorage.setItem("pvd_session", e),
+        clearSession: () => localStorage.removeItem("pvd_session"),
+      };
+
+      let currentUser = null;
+      let editingId = null;
+      let viewingId = null;
+      let pendingFiles = []; // [{name, size, type, data(base64)}]
+      let adminSortField = "createdAt";
+      let adminSortDir = "desc";
+      let lastAdminResults = [];
+      let selectedExportFormat = "json";
+
+      const FIELDS = [
+        "materia",
+        "curso",
+        "ciclo",
+        "institucion",
+        "enfoque",
+        "identidad",
+        "ejes",
+        "profundizacion",
+        "actividades_inicio",
+        "cuatri1",
+        "valoracion1",
+        "intensificacion1",
+        "cuatri2",
+        "valoracion2",
+        "articulacion",
+        "nucleos",
+        "producto",
+        "keywords",
+        "pendientes",
+        "diciembre",
+        "febrero",
+        "continuidad",
+        "recursos",
+      ];
+
+      // ══════════ INIT ══════════
+      window.onload = () => {
+        const session = DB.getSession();
+        if (session) {
+          const users = DB.getUsers();
+          if (users[session]) {
+            currentUser = { ...users[session], email: session };
+            loginSuccess();
+            return;
+          }
+        }
+        showPage("pageAuth");
+        // Create default admin if no users exist
+        const users = DB.getUsers();
+        if (Object.keys(users).length === 0) {
+          users["admin@pvd.ar"] = {
+            name: "Administrador",
+            pass: btoa("admin123"),
+            role: "admin",
+            createdAt: new Date().toISOString(),
+          };
+          DB.saveUsers(users);
+        }
+      };
+
+      // ══════════ AUTH ══════════
+      function switchAuthTab(tab) {
+        document
+          .querySelectorAll(".auth-tab")
+          .forEach((t, i) =>
+            t.classList.toggle(
+              "active",
+              (tab === "login" && i === 0) || (tab === "register" && i === 1),
+            ),
+          );
+        document.getElementById("loginForm").style.display =
+          tab === "login" ? "" : "none";
+        document.getElementById("registerForm").style.display =
+          tab === "register" ? "" : "none";
+        clearAuthMessages();
+      }
+      function clearAuthMessages() {
+        ["authError", "authSuccess"].forEach((id) => {
+          const el = document.getElementById(id);
+          el.style.display = "none";
+          el.textContent = "";
+        });
+      }
+      function showAuthError(m) {
+        const el = document.getElementById("authError");
+        el.textContent = m;
+        el.style.display = "block";
+      }
+      function showAuthSuccess(m) {
+        const el = document.getElementById("authSuccess");
+        el.textContent = m;
+        el.style.display = "block";
+      }
+
+      function doRegister() {
+        clearAuthMessages();
+        const name = document.getElementById("regName").value.trim();
+        const email = document
+          .getElementById("regEmail")
+          .value.trim()
+          .toLowerCase();
+        const pass = document.getElementById("regPass").value;
+        const pass2 = document.getElementById("regPass2").value;
+        if (!name) return showAuthError("Por favor ingresá tu nombre.");
+        if (!email || !email.includes("@"))
+          return showAuthError("Ingresá un correo válido.");
+        if (pass.length < 6)
+          return showAuthError(
+            "La contraseña debe tener al menos 6 caracteres.",
+          );
+        if (pass !== pass2)
+          return showAuthError("Las contraseñas no coinciden.");
+        const users = DB.getUsers();
+        if (users[email])
+          return showAuthError("Ya existe una cuenta con ese correo.");
+        users[email] = {
+          name,
+          pass: btoa(pass),
+          role: "docente",
+          createdAt: new Date().toISOString(),
+        };
+        DB.saveUsers(users);
+        showAuthSuccess("✓ Cuenta creada. Ahora podés iniciar sesión.");
+        ["regName", "regEmail", "regPass", "regPass2"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+        setTimeout(() => switchAuthTab("login"), 1500);
+      }
+
+      function doLogin() {
+        clearAuthMessages();
+        const email = document
+          .getElementById("loginEmail")
+          .value.trim()
+          .toLowerCase();
+        const pass = document.getElementById("loginPass").value;
+        if (!email || !pass) return showAuthError("Completá todos los campos.");
+        const users = DB.getUsers();
+        if (!users[email] || users[email].pass !== btoa(pass))
+          return showAuthError("Correo o contraseña incorrectos.");
+        currentUser = { ...users[email], email };
+        DB.setSession(email);
+        loginSuccess();
+      }
+
+      function loginSuccess() {
+        document.getElementById("headerEmail").textContent =
+          currentUser.name || currentUser.email;
+        const isAdmin = currentUser.role === "admin";
+        document.getElementById("headerAdminBadge").style.display = isAdmin
+          ? ""
+          : "none";
+        document.getElementById("btnAdminPanel").style.display = isAdmin
+          ? ""
+          : "none";
+        document.getElementById("appHeader").classList.add("visible");
+        document
+          .getElementById("appHeader")
+          .classList.toggle("admin-mode", isAdmin);
+        document.getElementById("dashGreeting").textContent =
+          `Hola, ${currentUser.name ? currentUser.name.split(" ")[0] : "docente"}`;
+        showDash();
+      }
+
+      function logout() {
+        DB.clearSession();
+        currentUser = null;
+        document
+          .getElementById("appHeader")
+          .classList.remove("visible", "admin-mode");
+        showPage("pageAuth");
+        clearAuthMessages();
+      }
+
+      // ══════════ NAVIGATION ══════════
+      function showPage(id) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+      }
+      function showDash() {
+        editingId = null;
+        renderPlanifs();
+        showPage("pageDash");
+      }
+      function showNewForm() {
+        editingId = null;
+        clearForm();
+        document.getElementById("formTitle").textContent =
+          "Nueva Planificación";
+        showPage("pageForm");
+        window.scrollTo(0, 0);
+      }
+      function showDetail(id) {
+        viewingId = id;
+        const p = DB.getPlanifs().find((x) => x.id === id);
+        if (!p) return;
+        document.getElementById("detailTitle").textContent =
+          p.materia || "Planificación";
+        renderDetail(p);
+        showPage("pageDetail");
+        window.scrollTo(0, 0);
+      }
+      function editCurrent() {
+        if (viewingId) editPlanif(viewingId);
+      }
+      function showAdmin() {
+        runAdminSearch();
+        renderUsers();
+        renderStats();
+        showPage("pageAdmin");
+        window.scrollTo(0, 0);
+      }
+
+      // ══════════ PLANIFICACIONES ══════════
+      function renderPlanifs() {
+        const all = DB.getPlanifs().filter(
+          (p) => p.userEmail === currentUser.email,
+        );
+        document.getElementById("planifCount").textContent = all.length;
+        const grid = document.getElementById("planifGrid");
+        if (all.length === 0) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <p>Aún no tenés planificaciones guardadas.<br>Hacé clic en <strong>Nueva Planificación</strong> para comenzar.</p>
+    </div>`;
+          return;
+        }
+        grid.innerHTML = all
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+          .map((p) => {
+            const attachChips = (p.attachments || [])
+              .map(
+                (a) => `<div class="attach-chip">📎 ${escHtml(a.name)}</div>`,
+              )
+              .join("");
+            return `
+    <div class="planif-card" onclick="showDetail('${p.id}')">
+      <div class="planif-card-title">${escHtml(p.materia) || "(Sin materia)"} — ${escHtml(p.curso) || ""}</div>
+      <div class="planif-card-meta">${escHtml(p.institucion) || ""} ${p.ciclo ? "· Ciclo " + escHtml(p.ciclo) : ""} · ${formatDate(p.createdAt)}</div>
+      <div class="planif-card-preview">${escHtml(p.enfoque || p.profundizacion || "Sin descripción")}</div>
+      ${attachChips ? `<div class="planif-card-attachments">${attachChips}</div>` : ""}
+      <div class="planif-card-actions" onclick="event.stopPropagation()">
+        <button class="btn-sm" onclick="editPlanif('${p.id}')">✏️ Editar</button>
+        <button class="btn-sm danger" onclick="deletePlanif('${p.id}')">🗑 Eliminar</button>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function clearForm() {
+        FIELDS.forEach((f) => {
+          const el = document.getElementById("f_" + f);
+          if (el) el.value = "";
+        });
+        document
+          .querySelectorAll(".char-count")
+          .forEach((el) => (el.textContent = "0 / 500 caracteres"));
+        pendingFiles = [];
+        renderPendingFiles();
+      }
+
+      function fillForm(p) {
+        FIELDS.forEach((f) => {
+          const el = document.getElementById("f_" + f);
+          if (el && p[f] !== undefined) el.value = p[f];
+        });
+        ["enfoque", "identidad", "ejes"].forEach((f) =>
+          countChars("f_" + f, "cc_" + f, 500),
+        );
+        pendingFiles = (p.attachments || []).map((a) => ({
+          ...a,
+          existing: true,
+        }));
+        renderPendingFiles();
+      }
+
+      function getFormData() {
+        const g = (id) => document.getElementById(id)?.value?.trim() || "";
+        const data = {};
+        FIELDS.forEach((f) => (data[f] = g("f_" + f)));
+        return data;
+      }
+
+      async function savePlanif() {
+        const data = getFormData();
+
+        if (!data.materia) {
+          showToast("Completá al menos el campo Materia.", "error");
+          return;
+        }
+
+        const payload = {
+          ...data,
+          docente: currentUser?.name || currentUser?.email || "Docente",
+          userEmail: currentUser?.email || "",
+          attachments: pendingFiles.map((f) => ({
+            name: f.name,
+            size: f.size,
+            type: f.type,
+            data: f.data,
+          })),
+          editingId: editingId || null,
+        };
+
+        const btn = document.querySelector(".btn-save");
+        const textoOriginal = btn ? btn.innerHTML : "";
+
+        try {
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = "Guardando...";
+          }
+
+          const resp = await fetch("http://localhost:5000/api/planificaciones", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await resp.json();
+
+          if (!resp.ok) {
+            throw new Error(
+              result.error || "No se pudo guardar la planificación",
+            );
+          }
+
+          showToast(
+            editingId
+              ? "Planificación actualizada y exportada ✓"
+              : "Planificación guardada y exportada ✓",
+            "success",
+          );
+
+          const planifs = DB.getPlanifs();
+
+          if (editingId) {
+            const idx = planifs.findIndex((p) => p.id === editingId);
+            if (idx >= 0) {
+              planifs[idx] = {
+                ...planifs[idx],
+                ...payload,
+                updatedAt: new Date().toISOString(),
+                serverFile: result.file || null,
+                serverFolder: result.folder || null,
+              };
+            }
+          } else {
+            planifs.push({
+              id: result.id || "p_" + Date.now(),
+              ...payload,
+              createdAt: new Date().toISOString(),
+              serverFile: result.file || null,
+              serverFolder: result.folder || null,
+            });
+          }
+
+          DB.savePlanifs(planifs);
+
+          setTimeout(showDash, 800);
+        } catch (err) {
+          console.error(err);
+          showToast("Error: " + err.message, "error");
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = textoOriginal;
+          }
+        }
+      }
+
+
+      1;
+      function editPlanif(id) {
+        const p = DB.getPlanifs().find((x) => x.id === id);
+        if (!p) return;
+        editingId = id;
+        clearForm();
+        fillForm(p);
+        document.getElementById("formTitle").textContent =
+          "Editar Planificación";
+        showPage("pageForm");
+        window.scrollTo(0, 0);
+      }
+
+      function deletePlanif(id) {
+        if (
+          !confirm(
+            "¿Eliminar esta planificación? Esta acción no se puede deshacer.",
+          )
+        )
+          return;
+        DB.savePlanifs(DB.getPlanifs().filter((p) => p.id !== id));
+        renderPlanifs();
+        showToast("Planificación eliminada.", "error");
+      }
+
+      // ══════════ FILE ATTACHMENTS ══════════
+      function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById("dropZone").classList.add("drag-over");
+      }
+      function handleDragLeave(e) {
+        document.getElementById("dropZone").classList.remove("drag-over");
+      }
+      function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById("dropZone").classList.remove("drag-over");
+        processFiles([...e.dataTransfer.files]);
+      }
+      function handleFileInput(e) {
+        processFiles([...e.target.files]);
+        e.target.value = "";
+      }
+
+      function processFiles(files) {
+        files.forEach((file) => {
+          if (file.size > 5 * 1024 * 1024) {
+            showToast(`"${file.name}" supera los 5 MB.`, "error");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            pendingFiles.push({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              data: ev.target.result,
+            });
+            renderPendingFiles();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderPendingFiles() {
+        const container = document.getElementById("attachedFilesList");
+        if (!pendingFiles.length) {
+          container.innerHTML = "";
+          return;
+        }
+        container.innerHTML = pendingFiles
+          .map(
+            (f, i) => `
+    <div class="attached-file-item">
+      <span>${fileIcon(f.type)}</span>
+      <span class="attached-file-name">${escHtml(f.name)}</span>
+      <span class="attached-file-size">${formatBytes(f.size)}</span>
+      <button class="btn-download-file" onclick="downloadFile(${i})">⬇ Ver</button>
+      <button class="btn-remove-file" onclick="removeFile(${i})" title="Quitar">✕</button>
+    </div>`,
+          )
+          .join("");
+      }
+
+      function removeFile(i) {
+        pendingFiles.splice(i, 1);
+        renderPendingFiles();
+      }
+      function downloadFile(i) {
+        const f = pendingFiles[i];
+        const a = document.createElement("a");
+        a.href = f.data;
+        a.download = f.name;
+        a.click();
+      }
+
+      function fileIcon(type = "") {
+        if (type.includes("pdf")) return "📕";
+        if (type.includes("word") || type.includes("document")) return "📘";
+        if (type.includes("sheet") || type.includes("excel")) return "📗";
+        if (type.includes("image")) return "🖼️";
+        return "📎";
+      }
+
+      // ══════════ DETAIL RENDER ══════════
+      function renderDetail(p) {
+        const field = (label, val) => `
+    <div class="detail-field">
+      <div class="detail-label">${label}</div>
+      <div class="detail-value${!val ? " empty" : ""}">${val ? escHtml(val) : "Sin completar"}</div>
+    </div>`;
+
+        const attachSection = (p.attachments || []).length
+          ? `
+    <div class="detail-section">
+      <h3><span class="section-num" style="background:var(--gold);color:var(--ink)">📎</span>Archivos Adjuntos</h3>
+      <div class="attached-files">
+        ${(p.attachments || [])
+          .map(
+            (f, i) => `
+          <div class="attached-file-item">
+            <span>${fileIcon(f.type)}</span>
+            <span class="attached-file-name">${escHtml(f.name)}</span>
+            <span class="attached-file-size">${formatBytes(f.size)}</span>
+            <button class="btn-download-file" onclick="downloadAttachment('${p.id}',${i})">⬇ Descargar</button>
+          </div>`,
+          )
+          .join("")}
+      </div>
+    </div>`
+          : "";
+
+        document.getElementById("detailContent").innerHTML = `
+    <div class="detail-section">
+      <h3><span class="section-num" style="background:var(--ink)">G</span>Datos Generales</h3>
+      ${field("Materia", p.materia)}${field("Año/Curso", p.curso)}${field("Ciclo Lectivo", p.ciclo)}${field("Institución", p.institucion)}
+    </div>
+    <div class="detail-section">
+      <h3><span class="section-num">1</span>Fundamentación de la Propuesta</h3>
+      ${field("Enfoque Pedagógico y Capacidades", p.enfoque)}
+      ${field("Identidad Técnica y Perfil Profesional", p.identidad)}
+      ${field("Ejes Transversales", p.ejes)}
+    </div>
+    <div class="detail-section">
+      <h3><span class="section-num">2</span>Período de Inicio (Marzo – Abril)</h3>
+      ${field("Enfoque de Profundización", p.profundizacion)}
+      ${field("Actividades de Inicio", p.actividades_inicio)}
+    </div>
+    <div class="detail-section">
+      <h3><span class="section-num">3</span>Organización por Cuatrimestres</h3>
+      ${field("Primer Cuatrimestre (Marzo–Julio)", p.cuatri1)}
+      ${field("Valoración Preliminar – Mayo", p.valoracion1)}
+      ${field("Intensificación – Julio", p.intensificacion1)}
+      ${field("Segundo Cuatrimestre (Agosto–Diciembre)", p.cuatri2)}
+      ${field("Valoración Preliminar – Octubre", p.valoracion2)}
+    </div>
+    <div class="detail-section">
+      <h3><span class="section-num">4</span>Proyectos Interdisciplinarios</h3>
+      ${field("Articulación de Saberes", p.articulacion)}
+      ${field("Núcleos Problemáticos", p.nucleos)}
+      ${field("Producto Final / Impacto", p.producto)}
+      ${field("Palabras Clave", p.keywords)}
+    </div>
+    <div class="detail-section">
+      <h3><span class="section-num">5</span>Materias Pendientes e Intensificación</h3>
+      ${field("Modelos de Organización", p.pendientes)}
+      ${field("Propuesta Diciembre", p.diciembre)}
+      ${field("Propuesta Febrero/Marzo", p.febrero)}
+    </div>
+    <div class="detail-section">
+      <h3><span class="section-num">6</span>Continuidad Pedagógica</h3>
+      ${field("Planificación Anticipada (min. 5 clases)", p.continuidad)}
+      ${field("Recursos y Materiales", p.recursos)}
+    </div>
+    ${attachSection}
+    <p style="font-size:0.78rem;color:var(--muted);margin-top:1rem;text-align:right">
+      Creado: ${formatDate(p.createdAt)}${p.updatedAt ? " · Modificado: " + formatDate(p.updatedAt) : ""}
+    </p>`;
+      }
+
+      function downloadAttachment(planifId, idx) {
+        const p = DB.getPlanifs().find((x) => x.id === planifId);
+        if (!p) return;
+        const f = (p.attachments || [])[idx];
+        if (!f) return;
+        const a = document.createElement("a");
+        a.href = f.data;
+        a.download = f.name;
+        a.click();
+      }
+
+      // ══════════ ADMIN – SEARCH ══════════
+      function runAdminSearch() {
+        const sq_global =
+          document.getElementById("sq_global")?.value.trim().toLowerCase() ||
+          "";
+        const sq_materia =
+          document.getElementById("sq_materia")?.value.trim().toLowerCase() ||
+          "";
+        const sq_docente =
+          document.getElementById("sq_docente")?.value.trim().toLowerCase() ||
+          "";
+        const sq_instit =
+          document
+            .getElementById("sq_institucion")
+            ?.value.trim()
+            .toLowerCase() || "";
+        const sq_ciclo =
+          document.getElementById("sq_ciclo")?.value.trim().toLowerCase() || "";
+        const sq_curso =
+          document.getElementById("sq_curso")?.value.trim().toLowerCase() || "";
+        const sq_keywords =
+          document.getElementById("sq_keywords")?.value.trim().toLowerCase() ||
+          "";
+        const sortVal =
+          document.getElementById("sq_sort")?.value || "createdAt_desc";
+
+        let all = DB.getPlanifs();
+
+        all = all.filter((p) => {
+          const fullText =
+            FIELDS.map((f) => p[f] || "")
+              .join(" ")
+              .toLowerCase() +
+            " " +
+            (p.userEmail || "");
+          if (sq_global && !fullText.includes(sq_global)) return false;
+          if (
+            sq_materia &&
+            !(p.materia || "").toLowerCase().includes(sq_materia)
+          )
+            return false;
+          if (
+            sq_docente &&
+            !(p.userEmail || "").toLowerCase().includes(sq_docente)
+          )
+            return false;
+          if (
+            sq_instit &&
+            !(p.institucion || "").toLowerCase().includes(sq_instit)
+          )
+            return false;
+          if (sq_ciclo && !(p.ciclo || "").toLowerCase().includes(sq_ciclo))
+            return false;
+          if (sq_curso && !(p.curso || "").toLowerCase().includes(sq_curso))
+            return false;
+          if (
+            sq_keywords &&
+            !(p.keywords || "").toLowerCase().includes(sq_keywords)
+          )
+            return false;
+          return true;
+        });
+
+        const [sf, sd] = sortVal.split("_");
+        all.sort((a, b) => {
+          const va = (a[sf] || "").toLowerCase();
+          const vb = (b[sf] || "").toLowerCase();
+          return sd === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
+        });
+
+        lastAdminResults = all;
+        const query =
+          sq_global ||
+          sq_materia ||
+          sq_docente ||
+          sq_instit ||
+          sq_ciclo ||
+          sq_curso ||
+          sq_keywords;
+        renderAdminResults(all, query);
+      }
+
+      function clearAdminSearch() {
+        [
+          "sq_global",
+          "sq_materia",
+          "sq_docente",
+          "sq_institucion",
+          "sq_ciclo",
+          "sq_curso",
+          "sq_keywords",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        document.getElementById("sq_sort").value = "createdAt_desc";
+        runAdminSearch();
+      }
+
+      function sortAdminTable(field) {
+        if (adminSortField === field)
+          adminSortDir = adminSortDir === "asc" ? "desc" : "asc";
+        else {
+          adminSortField = field;
+          adminSortDir = "asc";
+        }
+        document.getElementById("sq_sort").value = `${field}_${adminSortDir}`;
+        runAdminSearch();
+      }
+
+      function renderAdminResults(results, query = "") {
+        document.getElementById("adminResultsInfo").textContent =
+          `Mostrando ${results.length} planificación${results.length !== 1 ? "es" : ""}` +
+          (query ? ` · búsqueda: "${query}"` : "");
+
+        const hl = (str, q) => {
+          if (!q || !str) return escHtml(str || "");
+          const re = new RegExp(
+            `(${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+            "gi",
+          );
+          return escHtml(str).replace(re, '<span class="highlight">$1</span>');
+        };
+
+        const users = DB.getUsers();
+        document.getElementById("adminResultsBody").innerHTML = results.length
+          ? results
+              .map((p) => {
+                const userName = users[p.userEmail]?.name || p.userEmail;
+                const attachCount = (p.attachments || []).length;
+                return `<tr>
+      <td><div class="td-main">${hl(p.materia, query)}</div></td>
+      <td>${hl(p.curso, query)}</td>
+      <td>${hl(p.institucion, query)}</td>
+      <td>${hl(p.ciclo, query)}</td>
+      <td><div class="td-main">${hl(userName, query)}</div><div class="td-sub">${escHtml(p.userEmail)}</div></td>
+      <td>${formatDate(p.createdAt)}</td>
+      <td>${attachCount ? `<span class="attach-chip">📎 ${attachCount}</span>` : '<span style="color:var(--muted);font-size:0.8rem">—</span>'}</td>
+      <td><button class="btn-view-sm" onclick="adminViewPlanif('${p.id}')">Ver detalle</button></td>
+    </tr>`;
+              })
+              .join("")
+          : `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">No se encontraron planificaciones con esos filtros.</td></tr>`;
+      }
+
+      function adminViewPlanif(id) {
+        viewingId = id;
+        const p = DB.getPlanifs().find((x) => x.id === id);
+        if (!p) return;
+        document.getElementById("detailTitle").textContent =
+          p.materia || "Planificación";
+        renderDetail(p);
+        showPage("pageDetail");
+        window.scrollTo(0, 0);
+      }
+
+      function exportAdminResults() {
+        if (!lastAdminResults.length) {
+          showToast("No hay resultados para exportar.", "error");
+          return;
+        }
+        const lines = lastAdminResults
+          .map((p) => {
+            const users = DB.getUsers();
+            const name = users[p.userEmail]?.name || p.userEmail;
+            return `===== ${p.materia || "Sin materia"} | ${p.curso || ""} | ${p.institucion || ""} =====
+Docente: ${name} (${p.userEmail})  |  Ciclo: ${p.ciclo || "—"}  |  Creado: ${formatDate(p.createdAt)}
+Keywords: ${p.keywords || "—"}
+Adjuntos: ${(p.attachments || []).map((a) => a.name).join(", ") || "ninguno"}
+
+${FIELDS.map((f) => (p[f] ? `[${f.toUpperCase()}]\n${p[f]}` : ""))
+  .filter(Boolean)
+  .join("\n\n")}
+`;
+          })
+          .join("\n\n" + "═".repeat(60) + "\n\n");
+
+        downloadText(`resultados_admin_${Date.now()}.txt`, lines);
+        showToast(
+          `${lastAdminResults.length} planificaciones exportadas ✓`,
+          "success",
+        );
+      }
+
+      // ══════════ ADMIN – USERS ══════════
+      function renderUsers() {
+        const users = DB.getUsers();
+        const planifs = DB.getPlanifs();
+        const emails = Object.keys(users);
+        document.getElementById("userCountInfo").textContent =
+          `${emails.length} usuario${emails.length !== 1 ? "s" : ""} registrado${emails.length !== 1 ? "s" : ""}`;
+
+        document.getElementById("usersList").innerHTML =
+          emails
+            .map((email) => {
+              const u = users[email];
+              const count = planifs.filter((p) => p.userEmail === email).length;
+              const isAdmin = u.role === "admin";
+              const isMe = email === currentUser.email;
+              return `<div class="user-card">
+      <div class="user-avatar">${(u.name || email)[0].toUpperCase()}</div>
+      <div class="user-info">
+        <div class="user-name">${escHtml(u.name || "Sin nombre")}</div>
+        <div class="user-email">${escHtml(email)}</div>
+        <div class="user-stats">${count} planificación${count !== 1 ? "es" : ""} · Desde ${formatDate(u.createdAt)}</div>
+      </div>
+      <div class="user-actions">
+        <span class="role-badge ${isAdmin ? "role-admin" : "role-docente"}">${isAdmin ? "Admin" : "Docente"}</span>
+        ${
+          !isMe
+            ? isAdmin
+              ? `<button class="btn-toggle-admin btn-remove-admin" onclick="setUserRole('${email}','docente')">Quitar admin</button>`
+              : `<button class="btn-toggle-admin btn-make-admin" onclick="setUserRole('${email}','admin')">Hacer admin</button>`
+            : '<span style="font-size:0.78rem;color:var(--muted)">(vos)</span>'
+        }
+        ${!isMe ? `<button class="btn-delete-user" onclick="deleteUser('${email}')">🗑 Eliminar</button>` : ""}
+      </div>
+    </div>`;
+            })
+            .join("") ||
+          '<div class="empty-state"><p>No hay usuarios registrados.</p></div>';
+      }
+
+      function setUserRole(email, role) {
+        const users = DB.getUsers();
+        if (!users[email]) return;
+        users[email].role = role;
+        DB.saveUsers(users);
+        renderUsers();
+        showToast(`Rol de ${email} actualizado a "${role}" ✓`, "success");
+      }
+
+      function deleteUser(email) {
+        if (
+          !confirm(
+            `¿Eliminar al usuario ${email}?\nSus planificaciones también serán eliminadas.`,
+          )
+        )
+          return;
+        const users = DB.getUsers();
+        delete users[email];
+        DB.saveUsers(users);
+        DB.savePlanifs(DB.getPlanifs().filter((p) => p.userEmail !== email));
+        renderUsers();
+        showToast("Usuario eliminado.", "error");
+      }
+
+      // ══════════ ADMIN – STATS ══════════
+      function renderStats() {
+        const planifs = DB.getPlanifs();
+        const users = DB.getUsers();
+
+        const statCard = (label, value, sub = "", color = "var(--admin)") => `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem;box-shadow:var(--shadow)">
+      <div style="font-size:2rem;font-weight:900;color:${color};font-family:'Playfair Display',serif">${value}</div>
+      <div style="font-weight:600;font-size:0.9rem;margin-top:0.25rem">${label}</div>
+      ${sub ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:0.15rem">${sub}</div>` : ""}
+    </div>`;
+
+        const totalUsers = Object.keys(users).length;
+        const withAttach = planifs.filter(
+          (p) => (p.attachments || []).length > 0,
+        ).length;
+        const materias = [
+          ...new Set(planifs.map((p) => p.materia).filter(Boolean)),
+        ].length;
+        const instits = [
+          ...new Set(planifs.map((p) => p.institucion).filter(Boolean)),
+        ].length;
+
+        document.getElementById("statsGrid").innerHTML =
+          statCard(
+            "Planificaciones totales",
+            planifs.length,
+            "",
+            "var(--accent)",
+          ) +
+          statCard(
+            "Docentes registrados",
+            totalUsers,
+            `${Object.values(users).filter((u) => u.role === "admin").length} administradores`,
+            "var(--admin)",
+          ) +
+          statCard(
+            "Con archivos adjuntos",
+            withAttach,
+            `${planifs.length ? Math.round((withAttach / planifs.length) * 100) : 0}% del total`,
+          ) +
+          statCard("Materias únicas", materias) +
+          statCard("Instituciones", instits);
+
+        // Top docentes
+        const byDocente = {};
+        planifs.forEach((p) => {
+          byDocente[p.userEmail] = (byDocente[p.userEmail] || 0) + 1;
+        });
+        const topDocentes = Object.entries(byDocente)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10);
+
+        document.getElementById("statsTopSection").innerHTML =
+          topDocentes.length
+            ? `
+    <table class="admin-table">
+      <thead><tr><th>Docente</th><th>Email</th><th style="text-align:center">Planificaciones</th></tr></thead>
+      <tbody>${topDocentes
+        .map(
+          ([email, count]) => `
+        <tr>
+          <td class="td-main">${escHtml(users[email]?.name || "—")}</td>
+          <td class="td-sub">${escHtml(email)}</td>
+          <td style="text-align:center"><strong>${count}</strong></td>
+        </tr>`,
+        )
+        .join("")}
+      </tbody>
+    </table>`
+            : "";
+      }
+
+      function switchAdminTab(tab) {
+        document.querySelectorAll(".admin-tab").forEach((t, i) => {
+          t.classList.toggle(
+            "active",
+            t.textContent
+              .toLowerCase()
+              .includes(
+                tab === "search"
+                  ? "búsqueda"
+                  : tab === "users"
+                    ? "usuario"
+                    : "estadísticas",
+              ),
+          );
+        });
+        document
+          .querySelectorAll(".admin-sub-section")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .getElementById(
+            `adminTab${tab.charAt(0).toUpperCase() + tab.slice(1)}`,
+          )
+          .classList.add("active");
+        if (tab === "users") renderUsers();
+        if (tab === "stats") renderStats();
+      }
+
+      // ══════════ EXPORT ══════════
+      function showExportModal() {
+        document.getElementById("exportModal").classList.add("active");
+      }
+      function closeExportModal() {
+        document.getElementById("exportModal").classList.remove("active");
+      }
+      function selectExport(el, format) {
+        document
+          .querySelectorAll(".export-option")
+          .forEach((o) => o.classList.remove("selected"));
+        el.classList.add("selected");
+        selectedExportFormat = format;
+      }
+
+      function doExport() {
+        closeExportModal();
+        if (selectedExportFormat === "json") exportJSON();
+        if (selectedExportFormat === "html") exportOfflineHTML();
+        if (selectedExportFormat === "txt") exportTXT();
+      }
+
+      function exportJSON() {
+        const data = {
+          version: "2.0",
+          exportedAt: new Date().toISOString(),
+          users: DB.getUsers(),
+          planifs: DB.getPlanifs(),
+        };
+        downloadText(
+          `pvd_backup_${Date.now()}.json`,
+          JSON.stringify(data, null, 2),
+        );
+        showToast("Backup JSON descargado ✓", "success");
+      }
+
+      function exportTXT() {
+        const planifs = DB.getPlanifs().filter(
+          (p) => p.userEmail === currentUser.email,
+        );
+        if (!planifs.length) {
+          showToast("No tenés planificaciones para exportar.", "error");
+          return;
+        }
+        const lines = planifs
+          .map((p) => {
+            return `╔${"═".repeat(60)}╗
+  ${p.materia || "Sin materia"} — ${p.curso || ""} — ${p.ciclo || ""}
+  ${p.institucion || ""}
+╚${"═".repeat(60)}╝
+
+${FIELDS.map((f) => (p[f] ? `▸ ${f.toUpperCase()}\n${p[f]}` : ""))
+  .filter(Boolean)
+  .join("\n\n")}
+
+Adjuntos: ${(p.attachments || []).map((a) => a.name).join(", ") || "ninguno"}
+Creado: ${formatDate(p.createdAt)}
+`;
+          })
+          .join("\n\n" + "─".repeat(62) + "\n\n");
+        downloadText(`planificaciones_${Date.now()}.txt`, lines);
+        showToast("Exportación TXT descargada ✓", "success");
+      }
+
+      function exportOfflineHTML() {
+        showToast("Preparando app offline...", "success");
+        // Embed current localStorage data into a self-contained copy of the HTML
+        const allData = {
+          pvd_users: localStorage.getItem("pvd_users") || "{}",
+          pvd_planifs: localStorage.getItem("pvd_planifs") || "[]",
+        };
+        const html = document.documentElement.outerHTML;
+        const inject = `<script>
+    // ── DATOS EMBEBIDOS (exportación offline) ──
+    (function(){
+      const d=${JSON.stringify(allData)};
+      Object.entries(d).forEach(([k,v])=>{try{localStorage.setItem(k,v);}catch(e){}});
+    })();
+  <\/script>`;
+        const finalHtml = html.replace("</head>", inject + "</head>");
+        downloadText(
+          `planificacion_virtual_offline_${Date.now()}.html`,
+          finalHtml,
+        );
+        showToast("App offline descargada ✓", "success");
+      }
+
+      function downloadText(filename, text) {
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+      }
+
+      // ══════════ HELPERS ══════════
+      function countChars(inputId, countId, max) {
+        const el = document.getElementById(inputId),
+          cc = document.getElementById(countId);
+        if (!el || !cc) return;
+        const len = el.value.length;
+        cc.textContent = `${len} / ${max} caracteres`;
+        cc.classList.toggle("warn", len > max * 0.85);
+      }
+
+      function formatDate(iso) {
+        if (!iso) return "";
+        return new Date(iso).toLocaleDateString("es-AR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      }
+
+      function formatBytes(bytes) {
+        if (!bytes) return "—";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+      }
+
+      function escHtml(s) {
+        if (!s) return "";
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function showToast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        t.textContent = (type === "success" ? "✓ " : "⚠ ") + msg;
+        t.className = `toast ${type} show`;
+        setTimeout(() => t.classList.remove("show"), 3000);
+      }
+    </script>
+  </body>
+</html>
