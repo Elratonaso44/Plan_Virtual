@@ -2253,12 +2253,12 @@
           }
 
           const resp = await fetch("http://localhost:5000/api/planificaciones", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify(payload),
+                    });
 
           const result = await resp.json();
 

@@ -1,0 +1,18 @@
+El archivo de python es el encargado de convertir en pdf los datos del formulario
+
+Para ejecutarse primero hay que iniciar un entorno de "VENV"
+
+Para esto (En Arch Linux):
+    Python -m venv venv 
+    Una vez la carpeta este generada
+    source ./venv/bin/activate
+
+En windows:
+    Entrar a la Microsoft Store y descargar una version moderna de Python
+    Luego, inicializar venv desde Visual Studio Code
+
+El archivo necesita unas librerias. Recomendablemente instalar dentro del entorno de venv
+    pip install flask
+    pip install flask_cors
+    pip install fpdf
+    pip install fpdf2

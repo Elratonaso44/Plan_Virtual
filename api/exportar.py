@@ -7,6 +7,7 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+
 @app.route("/api/planificaciones", methods=["POST"])
 def guardar():
     data = request.get_json()
@@ -33,7 +34,7 @@ def guardar():
     actividades_inicio = data.get("actividades_inicio", "").strip()
 
     # Seccion 3
-    cuatri1 = data.get("cuatri1", "").strip()
+    cuatri1 = data.get("cuatri1", "").strip() 
     valoracion1 = data.get("valoracion1", "").strip()
     intensificacion1 = data.get("intensificacion1", "").strip()
     cuatri2 = data.get("cuatri2", "").strip()
@@ -54,7 +55,7 @@ def guardar():
     continuidad = data.get("continuidad", "").strip()
     recursos = data.get("recursos", "").strip()
 
-    # Extras
+    # Archivos adjuntos y los id de la edicion.   -Como genera el editingID?=
     attachments = data.get("attachments", [])
     editing_id = data.get("editingId", None)
 
@@ -74,8 +75,8 @@ def guardar():
     os.makedirs(carpeta_docente, exist_ok=True)
 
     # nombre archivo pdf
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nombre_pdf = f"{timestamp}_{materia.replace(' ', '_')}.pdf"
+    timestamp = datetime.now().strftime("%d_%m_%Y - %H:%M:%S")
+    nombre_pdf = f"{nombre_docente}_{timestamp}_{materia.replace(' ', '_')}.pdf"
     ruta_pdf = os.path.join(carpeta_docente, nombre_pdf)
 
     # crear pdf
@@ -170,13 +171,15 @@ def guardar():
 
     pdf.output(ruta_pdf)
 
-    return jsonify({
-        "ok": True,
-        "mensaje": "Planificación guardada correctamente",
-        "file": ruta_pdf,
-        "folder": carpeta_docente,
-        "editingId": editing_id
-    }), 201
+    return jsonify(
+        {
+            "ok": True,
+            "mensaje": "Planificación guardada correctamente",
+            "file": ruta_pdf,
+            "folder": carpeta_docente,
+            "editingId": editing_id,
+        }
+    ), 201
 
 
 if __name__ == "__main__":
