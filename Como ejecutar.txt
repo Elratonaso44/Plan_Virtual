@@ -7,9 +7,17 @@ Para esto (En Arch Linux):
     Una vez la carpeta este generada
     source ./venv/bin/activate
 
-En windows:
-    Entrar a la Microsoft Store y descargar una version moderna de Python
-    Luego, inicializar venv desde Visual Studio Code
+En Windows:
+    Instalar una versión moderna de Python 3 desde la Microsoft Store o desde el instalador oficial.
+    
+    Abrir la carpeta del proyecto en Visual Studio Code o en Símbolo del sistema / PowerShell.
+    
+    Crear el entorno virtual con:
+        python -m venv venv
+
+    Desde una PowerShell activarlo entrando al directorio donde se encuentre la carpeta de nombre "venv"
+    .\venv\Scripts\Activate.ps1
+    .\venv\Scripts\Activate.bat (En cmd)
 
 El archivo necesita unas librerias. Recomendablemente instalar dentro del entorno de venv
     pip install flask
